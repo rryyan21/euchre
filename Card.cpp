@@ -128,7 +128,7 @@ Suit Card::get_suit(Suit trump) const
 // EFFECTS Returns true if card is a face card (Jack, Queen, King or Ace)
 bool Card::is_face_or_ace() const
 {
-  if (get_rank() == JACK || get_rank() == QUEEN || get_rank() == KING || get_rank() == ACE)
+  if (rank == JACK || rank == QUEEN || rank == KING || rank == ACE)
   {
     return true;
   }
@@ -138,7 +138,7 @@ bool Card::is_face_or_ace() const
 // EFFECTS Returns true if card is the Jack of the trump suit
 bool Card::is_right_bower(Suit trump) const
 {
-  if (get_rank() == JACK && get_suit() == trump)
+  if (suit == trump && rank == JACK)
   {
     return true;
   }
@@ -148,7 +148,11 @@ bool Card::is_right_bower(Suit trump) const
 // EFFECTS Returns true if card is the Jack of the next suit
 bool Card::is_left_bower(Suit trump) const
 {
-  if (get_rank() == JACK && get_suit() == Suit_next(trump))
+  if (rank != JACK)
+  {
+    return false;
+  }
+  if (Suit_next(trump) == suit)
   {
     return true;
   }
@@ -282,7 +286,7 @@ bool Card_less(const Card &a, const Card &b, const Card &led_card, Suit trump)
 // EFFECTS Prints Card to stream, for example "Two of Spades"
 std::ostream &operator<<(std::ostream &os, const Card &card)
 {
-  cout << card.get_rank() << " of " << card.get_suit();
+  os << card.get_rank() << " of " << card.get_suit();
   return os;
 }
 
@@ -291,25 +295,21 @@ std::ostream &operator<<(std::ostream &os, const Card &card)
 //      which means it is allowed to access card.rank and card.suit.
 std::istream &operator>>(std::istream &is, Card &card)
 {
-  std::string rank_str, of_str, suit_str;
-  if (is >> rank_str >> of_str >> suit_str)
-  {
-    assert(of_str == "of");
-    card.rank = string_to_rank(rank_str);
-    card.suit = string_to_suit(suit_str);
-  }
+  std::string temp;
+  is >> card.rank >> temp >> card.suit;
   return is;
 }
 
-// EFFECTS Returns true if lhs is lower value than rhs.
-//   Does not consider trump.
+// apple
+//  EFFECTS Returns true if lhs is lower value than rhs.
+//    Does not consider trump.
 bool operator<(const Card &lhs, const Card &rhs)
 {
-  if (lhs.get_rank() < rhs.get_rank())
+  if (lhs.get_rank() == rhs.get_rank())
   {
-    return true;
+    return lhs.get_suit() < rhs.get_suit();
   }
-  return false;
+  return lhs.get_rank() < rhs.get_rank();
 }
 
 // EFFECTS Returns true if lhs is lower value than rhs or the same card as rhs.
@@ -349,18 +349,14 @@ bool operator>=(const Card &lhs, const Card &rhs)
 //   Does not consider trump.
 bool operator==(const Card &lhs, const Card &rhs)
 {
-  if (lhs.get_rank() == rhs.get_rank())
-  {
-    return true;
-  }
-  return false;
+  return lhs.get_rank() == rhs.get_rank() && lhs.get_suit() == rhs.get_suit();
 }
 
 // EFFECTS Returns true if lhs is not the same card as rhs.
 //   Does not consider trump.
 bool operator!=(const Card &lhs, const Card &rhs)
 {
-  if (lhs.get_rank() != rhs.get_rank())
+  if (lhs.get_rank() != rhs.get_rank() || lhs.get_suit() != rhs.get_suit())
   {
     return true;
   }

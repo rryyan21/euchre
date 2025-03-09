@@ -52,20 +52,20 @@ TEST(test_Card_less_self)
                            CLUBS));
 }
 
-TEST(test_card_insertion)
-{
-    Card three_spades = Card(THREE, SPADES);
-    ostringstream oss;
-    oss << three_spades;
-    ASSERT_EQUAL(oss.str(), "Three of Spades");
-}
-
 TEST(test_card_extraction)
 {
     istringstream iss("Three of Spades");
     Card c;
     iss >> c;
     ASSERT_EQUAL(c, Card(THREE, SPADES));
+}
+
+TEST(test_card_insertion)
+{
+    Card three_spades = Card(THREE, SPADES);
+    ostringstream oss;
+    oss << three_spades; // Insert the card into the stream
+    ASSERT_EQUAL(oss.str(), "Three of Spades");
 }
 
 TEST_MAIN()

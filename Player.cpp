@@ -22,126 +22,134 @@ public:
         hand.push_back(c);
     }
 
-    bool make_trump(const Card &upcard, bool is_dealer, int round, Suit &order_up_suit) const override
+    bool make_trump(const Card &upcard, bool is_dealer,
+                    int round, Suit &order_up_suit) const override
     {
-        assert(round == 1 || round == 2);
         int face_count = 0;
 
         if (round == 1)
         {
-            order_up_suit = upcard.get_suit();
-            for (const Card &c : hand)
+            for (Card c : hand)
             {
-                if (c.is_face_or_ace() && c.get_suit() == order_up_suit)
+                if ((c.is_face_or_ace() && c.is_trump(upcard.get_suit())) ||
+                    c.is_right_bower(upcard.get_suit()) ||
+                    c.is_left_bower(upcard.get_suit()))
                 {
                     face_count++;
                 }
             }
-            return face_count >= 2;
-        }
-        else
-        {
-            order_up_suit = Suit_next(upcard.get_suit());
-            for (const Card &c : hand)
+            if (face_count >= 2)
             {
-                if (c.is_face_or_ace() && c.get_suit() == order_up_suit)
-                {
-                    face_count++;
-                }
-            }
-            if (face_count >= 1)
-            {
-                return true;
-            }
-            if (is_dealer)
-            {
+                order_up_suit = upcard.get_suit();
                 return true;
             }
             return false;
+        }
+        else if (round == 2)
+        {
+            Suit next_suit = Suit_next(upcard.get_suit());
+            face_count = 0;
+
+            for (Card c : hand)
+            {
+                if ((c.is_face_or_ace() && c.is_trump(next_suit)) ||
+                    c.is_right_bower(next_suit) ||
+                    c.is_left_bower(next_suit))
+                {
+                    face_count++;
+                }
+            }
+
+            if (is_dealer || face_count >= 1)
+            {
+                order_up_suit = next_suit;
+                return true;
+            }
+
+            return false;
+        }
+        else
+        {
+            cout << "Invalid round number" << endl;
+            assert(false);
         }
     }
 
     void add_and_discard(const Card &upcard) override
     {
-        assert(hand.size() >= 1);
+        assert(hand.size() > 0);
         hand.push_back(upcard);
-        Card lowest_card = hand[0];
-        size_t lowest_index = 0;
-        for (size_t i = 1; i < hand.size(); ++i)
+        int index_lowest = 0;
+        for (int i = 0; i < hand.size(); i++)
         {
-            if (hand[i] < lowest_card)
+            if (!Card_less(hand[index_lowest], hand[i], upcard.get_suit()))
             {
-                lowest_card = hand[i];
-                lowest_index = i;
+                index_lowest = i;
             }
         }
-        hand.erase(hand.begin() + lowest_index);
-    }
+        hand.erase(hand.begin() + index_lowest);
+    };
 
     Card lead_card(Suit trump) override
     {
-        assert(hand.size() >= 1);
-        Card highest_non_trump = hand[0];
+        Card best_card = hand[0];
         bool found_non_trump = false;
-
         for (const Card &card : hand)
         {
-            if (card.get_suit() != trump)
+            if (!card.is_trump(trump))
             {
-                if (!found_non_trump || card > highest_non_trump)
+                if (!found_non_trump || card > best_card)
                 {
-                    highest_non_trump = card;
+                    best_card = card;
                     found_non_trump = true;
                 }
             }
         }
-
         if (!found_non_trump)
         {
-            highest_non_trump = hand[0];
+            best_card = hand[0];
             for (const Card &card : hand)
             {
-                if (card > highest_non_trump)
+                if (Card_less(best_card, card, trump))
                 {
-                    highest_non_trump = card;
+                    best_card = card;
                 }
             }
         }
 
-        hand.erase(find(hand.begin(), hand.end(), highest_non_trump));
-        return highest_non_trump;
+        hand.erase(remove(hand.begin(), hand.end(), best_card), hand.end());
+
+        return best_card;
     }
 
     Card play_card(const Card &led_card, Suit trump) override
     {
-        assert(hand.size() >= 1);
-        Card best_card = hand[0];
-        int best_index = 0;
+        int best_index = -1;
 
-        // highest
         for (size_t i = 0; i < hand.size(); i++)
         {
-            if (hand[i].get_suit() == led_card.get_suit() && hand[i] > best_card)
+            if (hand[i].get_suit(trump) == led_card.get_suit(trump))
             {
-                best_card = hand[i];
-                best_index = i;
-            }
-        }
-        // lowest
-        if (best_card.get_suit() != led_card.get_suit())
-        {
-            best_card = hand[0];
-            best_index = 0;
-            for (size_t i = 1; i < hand.size(); ++i)
-            {
-                if (hand[i] < best_card)
+                if (best_index == -1 || !Card_less(hand[i], hand[best_index], trump))
                 {
-                    best_card = hand[i];
                     best_index = i;
                 }
             }
         }
 
+        if (best_index == -1)
+        {
+            best_index = 0;
+            for (size_t i = 1; i < hand.size(); i++)
+            {
+                if (Card_less(hand[i], hand[best_index], trump))
+                {
+                    best_index = i;
+                }
+            }
+        }
+
+        Card best_card = hand[best_index];
         hand.erase(hand.begin() + best_index);
         return best_card;
     }
@@ -169,7 +177,8 @@ public:
         sort(hand.begin(), hand.end());
     }
 
-    bool make_trump(const Card &upcard, bool is_dealer, int round, Suit &order_up_suit) const override
+    bool make_trump(const Card &upcard, bool is_dealer,
+                    int round, Suit &order_up_suit) const override
     {
         assert(round == 1 || round == 2);
         print_hand();

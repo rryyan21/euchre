@@ -4,72 +4,146 @@
 
 using namespace std;
 
-TEST(test_card_constructor)
+TEST(Card_constructor)
 {
-    struct TestCase
-    {
-        Rank rank;
-        Suit suit;
-    };
-
-    // Define all test cases
-    TestCase test_cases[] = {
-        {ACE, HEARTS}, {ACE, CLUBS}, {ACE, DIAMONDS}, {ACE, SPADES}, {KING, HEARTS}, {KING, CLUBS}, {KING, DIAMONDS}, {KING, SPADES}, {QUEEN, HEARTS}, {QUEEN, CLUBS}, {QUEEN, DIAMONDS}, {QUEEN, SPADES}, {JACK, HEARTS}, {JACK, CLUBS}, {JACK, DIAMONDS}, {JACK, SPADES}, {TEN, HEARTS}, {TEN, CLUBS}, {TEN, DIAMONDS}, {TEN, SPADES}, {NINE, HEARTS}, {NINE, CLUBS}, {NINE, DIAMONDS}, {NINE, SPADES}, {EIGHT, HEARTS}, {EIGHT, CLUBS}, {EIGHT, DIAMONDS}, {EIGHT, SPADES}, {SEVEN, HEARTS}, {SEVEN, CLUBS}, {SEVEN, DIAMONDS}, {SEVEN, SPADES}, {SIX, HEARTS}, {SIX, CLUBS}, {SIX, DIAMONDS}, {SIX, SPADES}, {FIVE, HEARTS}, {FIVE, CLUBS}, {FIVE, DIAMONDS}, {FIVE, SPADES}, {FOUR, HEARTS}, {FOUR, CLUBS}, {FOUR, DIAMONDS}, {FOUR, SPADES}, {THREE, HEARTS}, {THREE, CLUBS}, {THREE, DIAMONDS}, {THREE, SPADES}, {TWO, HEARTS}, {TWO, CLUBS}, {TWO, DIAMONDS}, {TWO, SPADES}};
-
-    // Loop through each test case
-    for (size_t i = 0; i < sizeof(test_cases) / sizeof(test_cases[0]); ++i)
-    {
-        Card c(test_cases[i].rank, test_cases[i].suit);
-        ASSERT_EQUAL(c.get_rank(), test_cases[i].rank);
-        ASSERT_EQUAL(c.get_suit(), test_cases[i].suit);
-    }
+    Card c1;
+    ASSERT_EQUAL(c1.get_rank(), TWO);
+    ASSERT_EQUAL(c1.get_suit(), SPADES);
+    Card c2(ACE, HEARTS);
+    ASSERT_EQUAL(c2.get_rank(), ACE);
+    ASSERT_EQUAL(c2.get_suit(), HEARTS);
 }
 
-TEST(test_card_is_face_or_ace)
+TEST(Card_is_face_or_ace)
 {
-    struct TestCase
-    {
-        Rank rank;
-        Suit suit;
-        bool expected;
-    };
-
-    TestCase test_cases[] = {
-        {ACE, HEARTS, true}, {KING, CLUBS, true}, {QUEEN, DIAMONDS, true}, {JACK, SPADES, true}, {TEN, HEARTS, false}, {NINE, CLUBS, false}, {EIGHT, DIAMONDS, false}, {SEVEN, SPADES, false}, {SIX, HEARTS, false}, {FIVE, CLUBS, false}, {FOUR, DIAMONDS, false}, {THREE, SPADES, false}, {TWO, HEARTS, false}};
-
-    for (size_t i = 0; i < sizeof(test_cases) / sizeof(test_cases[0]); ++i)
-    {
-        Card c(test_cases[i].rank, test_cases[i].suit);
-        ASSERT_EQUAL(c.is_face_or_ace(), test_cases[i].expected);
-    }
-}
-
-TEST(test_card_less_than_operator)
-{
-    Card ace_hearts(ACE, HEARTS);
-    Card ace_diamonds(ACE, DIAMONDS);
-    Card king_spades(KING, SPADES);
-    Card king_hearts(KING, HEARTS);
-    Card ten_clubs(TEN, CLUBS);
-    Card nine_clubs(NINE, CLUBS);
-
-    ASSERT_TRUE(king_spades < ace_hearts);
-    ASSERT_TRUE(ten_clubs < king_hearts);
-    ASSERT_TRUE(nine_clubs < ten_clubs);
-    ASSERT_FALSE(ace_diamonds < ace_hearts);
+    Card c1(TWO, SPADES);
+    ASSERT_FALSE(c1.is_face_or_ace());
+    Card c2(JACK, SPADES);
+    ASSERT_TRUE(c2.is_face_or_ace());
+    Card c3(QUEEN, SPADES);
+    ASSERT_TRUE(c3.is_face_or_ace());
+    Card c4(KING, SPADES);
+    ASSERT_TRUE(c4.is_face_or_ace());
+    Card c5(ACE, SPADES);
+    ASSERT_TRUE(c5.is_face_or_ace());
 }
 
 TEST(test_card_is_right_bower)
 {
-    Card jack_spades(JACK, SPADES);
-    Card jack_hearts(JACK, HEARTS);
-    Card queen_spades(QUEEN, SPADES);
-    Card ten_spades(TEN, SPADES);
+    Card c1;
+    Card c2(TEN, CLUBS);
+    Card c3(JACK, Suit_next(HEARTS));
+    Card c4(ACE, Suit_next(CLUBS));
+    Card c5(NINE, CLUBS);
+    Card c6(JACK, DIAMONDS);
+    Card c7(JACK, HEARTS);
 
-    ASSERT_TRUE(jack_spades.is_right_bower(SPADES));
-    ASSERT_TRUE(jack_hearts.is_right_bower(HEARTS));
-    ASSERT_FALSE(queen_spades.is_right_bower(SPADES));
-    ASSERT_FALSE(ten_spades.is_right_bower(SPADES));
+    ASSERT_FALSE(c1.is_right_bower(DIAMONDS));
+    ASSERT_TRUE(c6.is_right_bower(DIAMONDS));
+    ASSERT_FALSE(c7.is_right_bower(DIAMONDS));
+    ASSERT_FALSE(c2.is_right_bower(DIAMONDS));
+    ASSERT_TRUE(c3.is_right_bower(DIAMONDS));
+    ASSERT_FALSE(c4.is_right_bower(DIAMONDS));
+    ASSERT_FALSE(c5.is_right_bower(DIAMONDS));
+}
+
+TEST(test_card_is_left_bower)
+{
+    Card c1;
+    Card c2(TEN, CLUBS);
+    Card c3(JACK, Suit_next(HEARTS));
+    Card c4(ACE, Suit_next(CLUBS));
+    Card c5(NINE, CLUBS);
+    Card c6(JACK, DIAMONDS);
+    Card c7(JACK, HEARTS);
+
+    ASSERT_FALSE(c1.is_left_bower(DIAMONDS));
+    ASSERT_FALSE(c2.is_left_bower(DIAMONDS));
+    ASSERT_FALSE(c3.is_left_bower(DIAMONDS));
+    ASSERT_TRUE(c3.is_left_bower(HEARTS));
+    ASSERT_FALSE(c4.is_left_bower(DIAMONDS));
+    ASSERT_FALSE(c5.is_left_bower(DIAMONDS));
+    ASSERT_FALSE(c6.is_left_bower(DIAMONDS));
+    ASSERT_FALSE(c7.is_left_bower(HEARTS));
+}
+
+TEST(test_card_is_trump)
+{
+    Card c1;
+    Card c2(TEN, CLUBS);
+    Card c3(JACK, Suit_next(HEARTS));
+    Card c4(ACE, Suit_next(CLUBS));
+    Card c5(NINE, CLUBS);
+    Card c6(JACK, DIAMONDS);
+    Card c7(JACK, HEARTS);
+
+    ASSERT_FALSE(c1.is_trump(DIAMONDS));
+    ASSERT_FALSE(c2.is_trump(DIAMONDS));
+    ASSERT_TRUE(c3.is_trump(DIAMONDS));
+    ASSERT_FALSE(c4.is_trump(CLUBS));
+    ASSERT_FALSE(c5.is_trump(DIAMONDS));
+    ASSERT_TRUE(c6.is_trump(DIAMONDS));
+    ASSERT_TRUE(c7.is_trump(DIAMONDS));
+}
+
+TEST(Card_Card_less)
+{
+    Card c2(TEN, CLUBS);
+    Card c3(JACK, Suit_next(HEARTS));
+    Card c4(ACE, Suit_next(CLUBS));
+    Card c5(NINE, CLUBS);
+    Card c6(JACK, SPADES);
+    Card c7(JACK, HEARTS);
+
+    ASSERT_TRUE(Card_less(c2, c3, SPADES));
+}
+
+TEST(Card_Card_less_led)
+{
+    Card c2(TEN, CLUBS);
+    Card c3(JACK, Suit_next(HEARTS));
+    Card c4(ACE, Suit_next(CLUBS));
+    Card c5(NINE, CLUBS);
+    Card c6(JACK, SPADES);
+    Card c7(JACK, HEARTS);
+
+    ASSERT_FALSE(Card_less(c2, c3, c5, SPADES));
+    ASSERT_TRUE(Card_less(c2, c6, c5, SPADES));
+}
+
+TEST(test_card_comparators)
+{
+    Card c1;
+    Card c2(TEN, CLUBS);
+    Card c3(JACK, Suit_next(HEARTS));
+    Card c4(ACE, Suit_next(CLUBS));
+    Card c5(NINE, CLUBS);
+    Card c6(JACK, SPADES);
+    Card c7(JACK, HEARTS);
+
+    ASSERT_TRUE(c1 < c2);
+    ASSERT_FALSE(c2 < c5);
+    ASSERT_TRUE(c3 < c4);
+    ASSERT_FALSE(c4 < c5);
+    ASSERT_TRUE(c5 < c6);
+    ASSERT_TRUE(c6 < c7);
+
+    ASSERT_TRUE(c1 <= c2);
+    ASSERT_FALSE(c2 <= c5);
+    ASSERT_TRUE(c3 <= c4);
+    ASSERT_FALSE(c4 <= c5);
+    ASSERT_TRUE(c5 <= c6);
+    ASSERT_TRUE(c6 <= c7);
+    ASSERT_TRUE(c2 <= c2);
+
+    ASSERT_FALSE(c1 > c2);
+    ASSERT_TRUE(c2 > c5);
+    ASSERT_FALSE(c3 > c4);
+    ASSERT_TRUE(c4 > c5);
+    ASSERT_FALSE(c5 > c6);
+    ASSERT_FALSE(c6 > c7);
+
+    ASSERT_TRUE(c1 != c2);
 }
 
 TEST_MAIN()
