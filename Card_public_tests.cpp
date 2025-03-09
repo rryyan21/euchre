@@ -7,7 +7,8 @@ using namespace std;
 // THESE TEST CASES WILL ONLY TELL YOU IF YOUR CODE COMPILES.
 // YOU NEED TO WRITE YOUR OWN COMPREHENSIVE TEST CASES IN Card_tests.cpp
 
-TEST(test_card_suit_and_rank) {
+TEST(test_card_suit_and_rank)
+{
     Card two_spades = Card();
     ASSERT_EQUAL(two_spades.get_rank(), TWO);
     ASSERT_EQUAL(two_spades.get_suit(), SPADES);
@@ -18,7 +19,8 @@ TEST(test_card_suit_and_rank) {
     ASSERT_EQUAL(three_spades.get_suit(CLUBS), SPADES);
 }
 
-TEST(test_card_type) {
+TEST(test_card_type)
+{
     Card three_spades = Card(THREE, SPADES);
     ASSERT_FALSE(three_spades.is_face_or_ace());
     ASSERT_FALSE(three_spades.is_right_bower(CLUBS));
@@ -26,7 +28,8 @@ TEST(test_card_type) {
     ASSERT_FALSE(three_spades.is_trump(CLUBS));
 }
 
-TEST(test_card_self_comparison) {
+TEST(test_card_self_comparison)
+{
     Card three_spades = Card(THREE, SPADES);
     ASSERT_FALSE(three_spades < three_spades);
     ASSERT_TRUE(three_spades <= three_spades);
@@ -36,25 +39,29 @@ TEST(test_card_self_comparison) {
     ASSERT_FALSE(three_spades != three_spades);
 }
 
-TEST(test_Suit_next) {
+TEST(test_Suit_next)
+{
     ASSERT_EQUAL(Suit_next(CLUBS), SPADES);
 }
 
-TEST(test_Card_less_self) {
+TEST(test_Card_less_self)
+{
     Card three_spades = Card(THREE, SPADES);
     ASSERT_FALSE(Card_less(three_spades, three_spades, CLUBS));
     ASSERT_FALSE(Card_less(three_spades, three_spades, three_spades,
                            CLUBS));
 }
 
-TEST(test_card_insertion) {
+TEST(test_card_insertion)
+{
     Card three_spades = Card(THREE, SPADES);
     ostringstream oss;
     oss << three_spades;
     ASSERT_EQUAL(oss.str(), "Three of Spades");
 }
 
-TEST(test_card_extraction) {
+TEST(test_card_extraction)
+{
     istringstream iss("Three of Spades");
     Card c;
     iss >> c;
