@@ -182,7 +182,7 @@ public:
     {
         assert(round == 1 || round == 2);
         print_hand();
-        cout << "Human player " << name << ", please enter a suit, or 'pass': ";
+        cout << "Human player " << name << ", please enter a suit, or \"pass\":\n";
 
         string decision;
         cin >> decision;
