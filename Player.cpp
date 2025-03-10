@@ -20,7 +20,7 @@ public:
     {
         assert(hand.size() < MAX_HAND_SIZE);
         hand.push_back(c);
-    }
+    };
 
     bool make_trump(const Card &upcard, bool is_dealer,
                     int round, Suit &order_up_suit) const override
@@ -92,35 +92,36 @@ public:
 
     Card lead_card(Suit trump) override
     {
-        Card best_card = hand[0];
-        bool found_non_trump = false;
-        for (const Card &card : hand)
+        int best_card_index = -1;
+        for (int i = 0; i < hand.size(); i++)
         {
-            if (!card.is_trump(trump))
+            if (!hand[i].is_trump(trump))
             {
-                if (!found_non_trump || card > best_card)
+                if (best_card_index == -1 || hand[i] > hand[best_card_index])
                 {
-                    best_card = card;
-                    found_non_trump = true;
+                    best_card_index = i;
                 }
             }
         }
-        if (!found_non_trump)
+        if (best_card_index != -1)
         {
-            best_card = hand[0];
-            for (const Card &card : hand)
-            {
-                if (Card_less(best_card, card, trump))
-                {
-                    best_card = card;
-                }
-            }
+            Card best_card = hand[best_card_index];
+            hand.erase(hand.begin() + best_card_index);
+            return best_card;
         }
 
-        hand.erase(remove(hand.begin(), hand.end(), best_card), hand.end());
-
+        for (int i = 0; i < hand.size(); i++)
+        {
+            if (best_card_index == -1 ||
+                !Card_less(hand[i], hand[best_card_index], trump))
+            {
+                best_card_index = i;
+            }
+        }
+        Card best_card = hand[best_card_index];
+        hand.erase(hand.begin() + best_card_index);
         return best_card;
-    }
+    };
 
     Card play_card(const Card &led_card, Suit trump) override
     {
@@ -152,7 +153,7 @@ public:
         Card best_card = hand[best_index];
         hand.erase(hand.begin() + best_index);
         return best_card;
-    }
+    };
 
 private:
     string name;
@@ -175,14 +176,14 @@ public:
     {
         hand.push_back(c);
         sort(hand.begin(), hand.end());
-    }
+    };
 
     bool make_trump(const Card &upcard, bool is_dealer,
                     int round, Suit &order_up_suit) const override
     {
-        assert(round == 1 || round == 2);
         print_hand();
-        cout << "Human player " << name << ", please enter a suit, or \"pass\":\n";
+        cout << "Human player " << name
+             << ", please enter a suit, or \"pass\":\n";
 
         string decision;
         cin >> decision;
@@ -192,48 +193,40 @@ public:
             order_up_suit = string_to_suit(decision);
             return true;
         }
-        else
-        {
-            return false;
-        }
-    }
+        return false;
+    };
 
     void add_and_discard(const Card &upcard) override
     {
-        hand.push_back(upcard);
+        // hand.push_back(upcard);
         print_hand();
         cout << "Discard upcard: [-1]\n";
-        cout << "Human player " << name << ", please select a card to discard: ";
+        cout << "Human player " << name << ", please select a card to discard:\n";
 
-        int discard_index;
-        cin >> discard_index;
-
-        if (discard_index == -1)
+        string decision;
+        cin >> decision;
+        if (decision != "-1")
         {
-            hand.pop_back(); // Remove the upcard
+            int index = stoi(decision);
+            assert(index >= 0 && index < hand.size());
+            hand.erase(hand.begin() + index);
+            add_card(upcard);
             sort(hand.begin(), hand.end());
         }
-        else
-        {
-            assert(discard_index >= 0 && discard_index < hand.size());
-            hand.erase(hand.begin() + discard_index);
-        }
-    }
+    };
 
     Card lead_card(Suit trump) override
     {
-        assert(hand.size() >= 1);
         print_hand();
-        cout << "Human player " << name << ", please select a card: ";
-
-        int card_index;
-        cin >> card_index;
-
+        cout << "Human player " << name << ", please select a card:\n";
+        string decision;
+        cin >> decision;
+        int card_index = stoi(decision);
         assert(card_index >= 0 && card_index < hand.size());
         Card c = hand[card_index];
         hand.erase(hand.begin() + card_index);
         return c;
-    }
+    };
 
     Card play_card(const Card &led_card, Suit trump) override
     {
@@ -246,7 +239,7 @@ public:
         Card c = hand[card_index];
         hand.erase(hand.begin() + card_index);
         return c;
-    }
+    };
 
 private:
     string name;
@@ -258,7 +251,6 @@ private:
             cout << "Human player " << name << "'s hand: "
                  << "[" << i << "] " << hand[i] << "\n";
     }
-
 }; // end of class HumanPlayer
 
 Player *Player_factory(const std::string &name, const std::string &strategy)
