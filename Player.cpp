@@ -97,7 +97,8 @@ public:
         {
             if (!hand[i].is_trump(trump))
             {
-                if (best_card_index == -1 || hand[i] > hand[best_card_index])
+                if (best_card_index == -1 ||
+                    !Card_less(hand[i], hand[best_card_index], trump))
                 {
                     best_card_index = i;
                 }
@@ -105,11 +106,10 @@ public:
         }
         if (best_card_index != -1)
         {
-            Card best_card = hand[best_card_index];
+            Card to_return = hand[best_card_index];
             hand.erase(hand.begin() + best_card_index);
-            return best_card;
+            return to_return;
         }
-
         for (int i = 0; i < hand.size(); i++)
         {
             if (best_card_index == -1 ||
@@ -118,9 +118,9 @@ public:
                 best_card_index = i;
             }
         }
-        Card best_card = hand[best_card_index];
+        Card to_return = hand[best_card_index];
         hand.erase(hand.begin() + best_card_index);
-        return best_card;
+        return to_return;
     };
 
     Card play_card(const Card &led_card, Suit trump) override
@@ -137,7 +137,6 @@ public:
                 }
             }
         }
-
         if (best_index == -1)
         {
             best_index = 0;

@@ -194,7 +194,6 @@ Suit Suit_next(Suit suit)
 //  order, as described in the spec.
 bool Card_less(const Card &a, const Card &b, Suit trump)
 {
-
   if (a.is_right_bower(trump))
   {
     return false;
@@ -225,6 +224,7 @@ bool Card_less(const Card &a, const Card &b, Suit trump)
   }
   cout << "*****Card_less not led" << endl;
   assert(false);
+  return a < b; // Add this line to ensure all code paths return a value
 }
 
 // EFFECTS Returns true if a is lower value than b.  Uses both the trump suit
@@ -269,6 +269,7 @@ bool Card_less(const Card &a, const Card &b, const Card &led_card, Suit trump)
   }
   cout << "*****Card_less led" << endl;
   assert(false);
+  return a < b; // Add this line to ensure all code paths return a value
 }
 
 // NOTE: We HIGHLY recommend you check out the operator overloading

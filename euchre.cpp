@@ -116,7 +116,6 @@ public:
 
             Card bestCard = lead_card;
             int bestIndex = lead_card_index;
-
             for (int j = lead_card_index + 1; j < lead_card_index + 4; j++)
             {
 
@@ -130,7 +129,6 @@ public:
                     bestIndex = j % 4;
                 }
             }
-
             lead_card_index = bestIndex;
             trick_winners[bestIndex]++;
             cout << players[bestIndex]->get_name() << " takes the trick" << endl;
